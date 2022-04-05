@@ -2,7 +2,9 @@ package model.dao.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import db.DB;
@@ -25,7 +27,6 @@ public class DepartmentDaoJDBC implements DepartmentDao  {
 			st=conn.prepareStatement(
 					"INSERT INTO department (Name) values(?)"
 			);
-			
 			st.setString(1, obj.getName());
 			st.executeUpdate();
 		}
@@ -36,7 +37,6 @@ public class DepartmentDaoJDBC implements DepartmentDao  {
 			DB.closeStatement(st);
 			DB.getConnection();
 		}
-		
 	}
 
 	@Override
@@ -44,10 +44,8 @@ public class DepartmentDaoJDBC implements DepartmentDao  {
 		PreparedStatement st = null;
 		try {
 			st=conn.prepareStatement(
-			  "UPDATE department SET Name = ? WHERE Id = ?"
+			  "UPDATE department SET Name = ? WHERE id = ?"
 		    );
-			
-			
 			st.setString(1, obj.getName());
 			st.setInt(2,obj.getId() );
 			
@@ -64,8 +62,24 @@ public class DepartmentDaoJDBC implements DepartmentDao  {
 	}
 
 	@Override
-	public void deleteById(Integer id) {
+	public void deleteByNome(Department obj) {
+		PreparedStatement st = null;
+		try {
+			st=conn.prepareStatement(
+				"DELETE FROM department WHERE Name = ? limit 1"
+			);
+			
+			st.setString(1, obj.getName());
+			st.executeUpdate();
+		}
+		catch(SQLException e){
+			throw new DbException(e.getMessage());
+		}
 		
+		finally {
+			DB.closeStatement(st);
+			DB.getConnection();
+		}
 		
 	}
 
@@ -75,10 +89,37 @@ public class DepartmentDaoJDBC implements DepartmentDao  {
 		return null;
 	}
 
-	@Override
+	@Override 
 	public List<Department> findAll() {
-		
-		return null;
-	}
+		  PreparedStatement st = null;
+		  ResultSet rs =null;
+		  Department dep = new Department();
+		  try {
+			st=conn.prepareStatement(
+			 "SELECT * FROM department"
+			);
+			rs=st.executeQuery();
+			dep.setId(rs.getInt("Id"));
+		    dep.setName(rs.getString("Name"));
+			
+		    List <Department> list =new ArrayList<>();
+            while(rs.next()==true) {
+            	list.add(dep);
+            }
+            return list;
+	    }
+		catch(SQLException e){
+			throw new DbException(e.getMessage());
+		}
+		finally{
+			DB.closeStatement(st);
+			DB.closeResultSet(rs);
+	    }
 
+   }
 }
+
+
+
+
+
