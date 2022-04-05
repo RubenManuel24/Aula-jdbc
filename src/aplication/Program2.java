@@ -13,6 +13,11 @@ public class Program2 {
 		Department dep = new Department();
 		dep.setName("Medicine");
 		departdao.insert(dep);
+		
+		System.out.println("== Test 2: Insert Department ==");
+		dep.setName("Desport");
+		dep.setId(7);
+		departdao.update(dep);
 
 	}
 
